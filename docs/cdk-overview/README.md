@@ -1,17 +1,19 @@
 # Overview of CDK for PSTN Audio
 
-This small section cannot teach you everything about the [Amazon Cloud Development Kit (v2)](https://docs.aws.amazon.com/cdk/v2/guide/home.html).  We highly recommend the excellent [base workshop](https://cdkworkshop.com/) and the [advanced follow-on workshop](https://catalog.us-east-1.prod.workshops.aws/workshops/071bbc60-6c1f-47b6-8c66-e84f5dc96b3f/en-US) to teach you how to use the SDK.  
+This small section cannot teach you everything about the [Amazon Cloud Development Kit (v2) (CDK)](https://docs.aws.amazon.com/cdk/v2/guide/home.html).  We highly recommend the excellent [base workshop](https://cdkworkshop.com/) and the [advanced follow-on workshop](https://catalog.us-east-1.prod.workshops.aws/workshops/071bbc60-6c1f-47b6-8c66-e84f5dc96b3f/en-US) to teach you how to use the SDK.  
 
 This page will just outline the basic structure of our very simple CDK scripts.
 
 ## High-Level Approach
 
-This main level of the directory structure creates a basic PSTN Audio telephony application.  It has it's CDK components in the lib folder, and the actual lambda application in the src folder.  The lambda in that folder just answers the phone and tells you what phone number you are calling from.  It's a placeholder only at this time.  We will walk through a set of example lambdas in this workshop.  When you deploy the application, you must have a lambda function in order to create the SIP Media Appliance.  Please see the ["How it Works"](../how-it-works/README.md) document for details.  To speed deployment during development/workshop learning, we leave deploy the parent stack once.  As we test a workshop lambda, we swap the new "child" lambda for the parent using an API call.  This is not recommended in production if you are using CloudFormation stacks to manage your infra, because this intentionally introduces drift (e.g. the configured lambda is not managed by the parent stack).  We do this during development and learning however, because it is faster.  Deploying the parent stack takes over two minutes.  Deploying just a new lambda and swapping it's configuration takes about 10 seconds.
+This main level of the directory structure creates a basic PSTN Audio telephony application.  It has it's CDK components in the lib folder, and the actual lambda application in the src folder.  The AWS Lambda Function (Lambda) in that folder just answers the phone and tells you what phone number you are calling from.  It's a placeholder only at this time.  We will walk through a set of example Lambdas in this workshop.  When you deploy the application, you must have a Lambda function in order to create the SIP Media Appliance (SMA).  Please see the ["How it Works"](../how-it-works/README.md) document for details.  To speed deployment during development/workshop learning, we will deploy the parent stack once.  As we test a workshop Lambda, we swap the new "child" Lambda for the parent using an API call.  This is not recommended in production if you are using AWS CloudFormation stacks to manage your infra, because this intentionally introduces drift (e.g. the configured Lambda is not managed by the parent stack).  We do this during development and learning however, because it is faster.  Deploying the parent stack takes over two minutes.  Deploying just a new Lambda and swapping it's configuration takes about 10 seconds.
 
 In summary, we have a parent stack that deploys the telephony resources, and then children stacks that only have a lambda function.  We'll discuss the childred in the workshop lessons.  
+
 ## Parent Stack
 
 The file amazon-chime-sdk-pstn-audio-workshop-stack.ts is the top-level, parent stack.  It is organized into substacks to make things clear about where they are getting created:  The telephony resources are not likely to be changed often, so re-deploys should be a little faster if only the application parts changed.  The files in the stack are in the ["lib"](../lib) folder:
+
 
 ```bash
 .
@@ -93,7 +95,7 @@ export class Application extends NestedStack {
 }
 ```
 
-The first thing we do is create an IAM role for the application, which is just the lambda.  Next we will create the lambda and set it's role so that it is allowed to execute.  Let's dig into some of the lambda creation settings.
+The first thing we do is create an AWS Identity Access and Managemente (IAM) role for the application, which is just the Lambda.  Next we will create the Lambda and set it's role so that it is allowed to execute.  Let's dig into some of the Lambda creation settings.
 
 ```typescript
    const smaLambda = new NodejsFunction(this, 'smaLambda', {
@@ -119,7 +121,7 @@ The first thing we do is create an IAM role for the application, which is just t
   }
   ```
 
-We create the labda using the new [NodejsFunction](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda_nodejs-readme.html) call.  Let's go over a few of the fields:
+We create the Lambda using the new [NodeJs Function](https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_lambda_nodejs-readme.html) call.  Let's go over a few of the fields:
 
 * entry: this points to the source code of the lambda function
 * handler: this is the function name to call in that source code file
@@ -137,7 +139,7 @@ We then expose variables so that the parent stack can "read" them.
 
 ## Chime Stack
 
-The Amazon Chime SDK resources are deployed through this sub-stack.  In this simple example we pass in the lambda from the application stack and a string of the US State that we want the phone number to be from.  We could expand this to include the other attributes possible from the resource constructs, but that is beyond the scope of this example.
+The Amazon Chime SDK resources are deployed through this sub-stack.  In this simple example we pass in the Lambda from the application stack and a string of the US State that we want the phone number to be from.  We could expand this to include the other attributes possible from the resource constructs, but that is beyond the scope of this example.
 
 
 ```typescript
@@ -227,7 +229,7 @@ export class Chime extends NestedStack {
 }
 ```
 
-We first create the role, then we create the phone number, the SIP Media Application, and the SIP Rule.  We then set the IAM permissions so that the SMA can call Polly and Lex.  We then set the phone number and SMA ID so that the parent object can read them.
+We first create the role, then we create the phone number, the SIP Media Application, and the SIP Rule.  We then set the IAM permissions so that the SMA can call Amazon Polly and Amazon Lex.  We then set the phone number and SMA ID so that the parent object can read them.
 
 ## Phone Numbers
 

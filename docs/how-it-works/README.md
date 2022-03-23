@@ -3,17 +3,17 @@
 PSTN Audio has three cloud objects:
 
 * Phone Numbers
-* SIP Media Appliance (SMA) - a software interface that connects phone events to lambda functions
+* SIP Media Appliance (SMA) - a software interface that connects phone events to  AWS Lambda (Lambda) functions
 * SIP Rules - a software configuration that maps a phone number to an SMA
 
-You can think about these as if they were other cloud objects, like S3 is a storage bucket.  They are created and destroyed either from the [Amazon Chime SDK Console](https://console.chime.aws.amazon.com/) or through scripts using the [Amazon Cloud Development Kid (CDK)](<https://aws.amazon.com/cdk/>).  Using the CDK, you can can manage these objects through the [cdk-amazon-chime-resources](https://www.npmjs.com/package/cdk-amazon-chime-resources) npm module.
+You can think about these as if they were other cloud objects, just like Amazon Simple Storage Service (S3) is a storage bucket.  They are created and destroyed either from the [Amazon Chime SDK Console](https://console.chime.aws.amazon.com/) or through scripts using the [Amazon Cloud Development Kit (CDK)](<https://aws.amazon.com/cdk/>).  Using the CDK, you can can manage these objects through the [cdk-amazon-chime-resources](https://www.npmjs.com/package/cdk-amazon-chime-resources) npm module.
 
 ## Three Interfaces
 
 PSTN Audio uses three software intefaces:
 
 * The SIP Media Appliance object (SMA) sends telephony "events" to a lambda
-* The lambda replies to "events" with "actions"
+* The Lambda replies to "events" with "actions"
 * API calls to the Amazon Chime SDK service
 
 ## Typical Incoming Call Interaction
@@ -48,7 +48,7 @@ sequenceDiagram
 ```
 ### Telephony Events
 
-The SIP Media Appliance (SMA) sends [telephony "events"](https://docs.aws.amazon.com/chime/latest/dg/pstn-invocations.html) to the lambda function registered with it.  
+The SIP Media Appliance (SMA) sends [telephony "events"](https://docs.aws.amazon.com/chime/latest/dg/pstn-invocations.html) to the Lambda function registered with it.  
 
 The generic format of these events is:
 
@@ -77,7 +77,7 @@ The generic format of these events is:
 }
 ```
 
-The lambda processes these events and returns an "action" (see below).  The "InvocationEventType" is the key that the code needs to act on.  Examples of these are:
+The Lambda processes these events and returns an "action" (see below).  The "InvocationEventType" is the key that the code needs to act on.  Examples of these are:
 
 * NEW_INBOUND_CALL
 * NEW_OUTBOUND_CALL
@@ -91,10 +91,11 @@ The lambda processes these events and returns an "action" (see below).  The "Inv
 
 Please see the [documentation](https://docs.aws.amazon.com/chime/latest/dg/pstn-invocations.html) for the entire list.
 
-It's worth pointing out that the lambda function responds to events.  There is a special case where the customer code wants to interupt the SMA and force it to ask for new actions to perform.  That can be accomplished by calling the API function "UpdateSipMediaApplicationCallCommand" ([javascrypt](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-chime/classes/updatesipmediaapplicationcallcommand.html) and [python](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/chime.html#Chime.Client.update_sip_media_application_call)).  See the API Calls section for more details on API calls.  Calling that function includes a payload.  The SMA will be interupted and it will invoke a CALL_UPDATE_REQUESTED event and carry the payload.  The lambda can then send new event(s) to the SMA.
+It's worth pointing out that the Lambda function responds to events.  There is a special case where the customer code wants to interupt the SMA and force it to ask for new actions to perform.  That can be accomplished by calling the API function "UpdateSipMediaApplicationCallCommand" ([JavaScript](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-chime/classes/updatesipmediaapplicationcallcommand.html) and [Python](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/chime.html#Chime.Client.update_sip_media_application_call)).  See the API Calls section for more details on API calls.  Calling that function includes a payload.  The SMA will be interupted and it will invoke a CALL_UPDATE_REQUESTED event and carry the payload.  The Lambda can then send new event(s) to the SMA.
+
 ### Lambda Actions
 
-The lambda processes events and returns "actions" as described in the [documentation](https://docs.aws.amazon.com/chime/latest/dg/specify-actions.html).  For example, to play a recorded audio file on a leg of a call, the action might look like this:
+The Lambda processes events and returns "actions" as described in the [documentation](https://docs.aws.amazon.com/chime/latest/dg/specify-actions.html).  For example, to play a recorded audio file on a leg of a call, the action might look like this:
 
 ```json
 {
@@ -127,7 +128,7 @@ Examples of possible actions:
 * ReceiveDigits
 * RecordAudio
 
-New actions recently released to support Amazon Lex, Amazon Polly and Amazon Voice Focus:
+New actions recently released to support Amazon Lex (Lex), Amazon Polly (Polly) and Amazon Voice Focus:
 
 * Speak - text-to-speech
 * StartBotConversation - speech-to-text chat bot
@@ -137,7 +138,7 @@ These actions are fully described in the [documentation](https://docs.aws.amazon
 
 ### Lambda TransactionAttributes
 
-TransactionAttributes enable lambda developers to store application-specific information (examples:  call state, meeting IDs, attendee IDs, etc.).  These are stored in the SMA and transparently passed in the event object of every subsequent invocation for that session.  A session is for the lifetime of that call (inbound or outbound). This feature removes the need for customers to store this type of information in an external database like DynamoDB. 
+TransactionAttributes enable Lambda developers to store application-specific information (examples:  call state, meeting IDs, attendee IDs, etc.).  These are stored in the SMA and transparently passed in the event object of every subsequent invocation for that session.  A session is for the lifetime of that call (inbound or outbound). This feature removes the need for customers to store this type of information in an external database like Amazon DynamoDB. 
 
 The feature defines a new TransactionAttributes data structure, a JSON Object (<https://www.w3schools.com/js/js_json_objects.asp>) of key/value pairs. Customers can store whatever keys/values they want in TransactionAttributes. After they have been set, TransactionAttributes will be passed back in future Lambda invocations. The information is stored as up to 10 key-value pairs, of which each key or value has a maximum length of 1024 characters.
 
@@ -256,7 +257,7 @@ Likewise, not passing TransactionAttributes will NOT clear the TransactionAttrib
 
 ### API Calls
 
-Behavior that is not in response to an event requires that code somewhere (perhaps in the lambda) make an API call to the Amazon Chime SDK service.  This service exposes a raw API over HTTP (not recommended), a Command Line Interface (CLI), and AWS SDK client libraries in many supported computer languages.  We will focus on [python](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/chime.html) and [typescript/javascript](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-chime/index.html) in this document.  The examples in this workshop are all typescript/javascript.
+Behavior that is not in response to an event requires that code somewhere (perhaps in the Lambda) make an API call to the Amazon Chime SDK service.  This service exposes a raw API over HTTP (not recommended), a Command Line Interface (CLI), and AWS SDK client libraries in many supported computer languages.  We will focus on [Python](https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/chime.html) and [TypeScript/JavaScript](https://docs.aws.amazon.com/AWSJavaScriptSDK/v3/latest/clients/client-chime/index.html) in this document.  The examples in this workshop are all TypeScript/JavaScript.
 
 We mentioned an example above of triggering the SMA to send a CALL_UPDATE_REQUESTED event by using the "UpdateSipMediaApplicationCallCommand."  Another common command is used to make outbound phone calls.  In that case the "CreateSipMediaApplicationCall" API is used.  An example from the ["call and bridge"](../../lambdas/call-and-bridge/src/index.ts) lambda:
 
@@ -279,6 +280,7 @@ async function makeDial(event: any) {
   }
 }
 ```
+
 This function takes a HANGUP event and places a call back to the calling number.  You will notice that sending the command uses "await" to make it asyncronous.  This API call will trigger the SMA to start the outbound call, which will then send telephony events as that call progresses.  
 
 It is beyond the scope of this workshop, but the API calls do not need to be to the same SMA for the same phone number.  The paremeters to the API call include the SMA ID.  If the code has access to the SMA ID of another SMA with a different phone number then a wholly differnt call flow could be triggered.  The lambda registerd with that other SMA would process the telephony events from that phone number.
@@ -300,38 +302,38 @@ An ACTION_SUCCESSFUL event will be sent to your lambda when any of the following
 * PlayAudioAndGetDigits
 * RecordAudio
 
-If the lambda responds to the successful event with any action, then any remaining actions in the prior action list will be replaced by that new action list.  If the lambda responds to the successful event with no action data then the remaining actions in the previous list will continue to be taken.
+If the Lambda responds to the successful event with any action, then any remaining actions in the prior action list will be replaced by that new action list.  If the Lambda responds to the successful event with no action data then the remaining actions in the previous list will continue to be taken.
 
 #### Example 1
 
-Your lambda returns the following action list:  
+Your Lambda returns the following action list:  
 
 [Pause, PlayAudio]  
 
-If Pause fails during execution then your lambda will be invoked with an ACTION_FAILED event and the PlayAudio action will not be executed. You may return a new action list to be executed.
+If Pause fails during execution then your Lambda will be invoked with an ACTION_FAILED event and the PlayAudio action will not be executed. You may return a new action list to be executed.
 
 #### Example 2
 
-Your lambda returns the following actions list:  
+Your Lambda returns the following actions list:  
 
 [PlayAudio, ReceiveDigits]  
 
-If both actions succeed then your lambda will be invoked and you may return a new action list to be performed.
+If both actions succeed then your Lambda will be invoked and you may return a new action list to be performed.
 
 #### Example 3
 
-Your lambda returns the following action list:
+Your Lambda returns the following action list:
 [Pause, CallAndBridge, PlayAudio]
 
-When Pause succeeds the service will begin executing CallAndBridge. When CallAndBridge succeeds your lambda would be invoked because CallAndBridge will send an ACTION_SUCCESSFUL when it succeeds.
+When Pause succeeds the service will begin executing CallAndBridge. When CallAndBridge succeeds your Lambda would be invoked because CallAndBridge will send an ACTION_SUCCESSFUL when it succeeds.
 
-If your lambda then returned:
+If your Lambda then returned:
 
 [Pause, RecordAudio]  
 
 That would result in the PlayAudio action from the initial action list never being executed since a new action list was returned. Instead Pause and RecordAudio would execute.
 
-If your lambda instead returned an empty action list, then PlayAudio from the original action list would execute since it was still in the action list when CallAndBridge invoked the lambda and no action list was returned.
+If your Lambda instead returned an empty action list, then PlayAudio from the original action list would execute since it was still in the action list when CallAndBridge invoked the lambda and no action list was returned.
 
 ## Triggering the SMA to Send an Event
 
@@ -377,13 +379,12 @@ To trigger the SMA, use the UpdateSipMediaApplicationCallCommand and pass some d
   }
 }
 ```
+
 This will prompt the SMA to send an CALL_UPDATE_REQUESTED event to the lambda.  The "Arguments" object in the call will be passed verbatim to the SMA as payload in the event.  
 
+## AWS Identity Access and Management (IAM) Permissions
 
-
-## IAM Permissions
-
-There are two resources that interact with other AWS cloud resources:  the lambda function and the SMA.  Any behavior that is triggered by an action will be carried out by the SMA.  Thus, the SMA needs to have appropriate IAM permission.  In the example above, to play a file that is stored in an S3 bucket, the SMA requires permission to read that bucket.  An example of a full permission might look like:
+There are two resources that interact with other AWS cloud resources:  the Lambda function and the SMA.  Any behavior that is triggered by an action will be carried out by the SMA.  Thus, the SMA needs to have appropriate IAM permission.  In the example above, to play a file that is stored in an S3 bucket, the SMA requires permission to read that bucket.  An example of a full permission might look like:
 
 ```json
 {
@@ -428,7 +429,7 @@ In the lessons of this workshop, we usually set all the permissions in the "Chim
     wavFiles.addToResourcePolicy(wavFileBucketPolicy);
 ```
 
-The SMA needs permission to use Polly as well.  Even though not all examples need Polly, we go ahead and grant that permission in the parent CDK script:
+The SMA needs permission to use Polly as well.  Even though not all examples need Polly, we grant that permission in the parent CDK script:
 
 ```typescript
   const pstnPollyRole = new iam.Role(this, 'pstnPollyRole', {
@@ -442,6 +443,3 @@ The SMA needs permission to use Polly as well.  Even though not all examples nee
 ```
 
 The examples that show how to use Lex put the permissions for calling Lex into the Lex bot configuration, so that is not covered here.
-
-
-
