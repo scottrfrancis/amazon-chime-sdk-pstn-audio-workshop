@@ -93,7 +93,7 @@ async function actionSuccessful(event: any) {
 
 function placeCall(event: any) {
   callAndBridgeAction.Parameters.CallerIdNumber = event.CallDetails.Participants[0].From;
-  callAndBridgeAction.Parameters.RingbackTone.Key = "US_ringback_tone.wav";
+  callAndBridgeAction.Parameters.RingbackTone.Key = "ringback.wav";
   callAndBridgeAction.Parameters.Endpoints[0].Uri = "+" + event.ActionData.ReceivedDigits;
   return [pauseAction, callAndBridgeAction];
 }
