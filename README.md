@@ -41,7 +41,7 @@ PSTN Audio applications are serverless application built using [Amazon Lambda](h
 * [Call Me Back](lambdas/call-me-back) (teaches how to make outbound phone calls using voice-to-text using Amazon Polly)
 * [Call and Bridge Another Call](./lambdas/call-and-bridge) (teachs how to bridge calls together, and how to enable/disable Amazon Voice Focus noise suppression)
 * [Call a Voice Chat-Bot](./lambdas/call-lex-bot) (teaches how to connect a phone call to an Amazon Lex chat bot)
-* [Call and Make Recording](./lambdas/call-make-recording) (teaches how to connect a phone call to an Amazon Lex chat bot)
+* [Call and Make Recording](./lambdas/call-make-recording) (teaches how to record a call and play the recorind back)
 
 ## Cleanup
 
