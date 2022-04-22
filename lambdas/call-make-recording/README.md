@@ -1,4 +1,4 @@
-# Example 1: Call and Make Recording
+# Example 5: Call and Make Recording
 
 [Previous Lesson](../call-lex-bot/README.md)  
 [Next Lesson](../../README.md)  

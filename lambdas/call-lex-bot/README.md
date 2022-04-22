@@ -1,6 +1,7 @@
 # Example 4: Call an Amazon Lex Bot
 
 [Previous Lesson](../call-and-bridge/README.md)   
+[Next Lesson](../call-make-recording/README.md)  
 
 # Overall Behavior
 
@@ -390,5 +391,5 @@ yarn number
 
 You can get more information on the CDK deployment scripts in the [How It Works](../../docs/how-it-works/) section.
 
-[Previous Lesson](../../docs/cdk-overview/README.md)
-[Next Lesson](../call-me-back/README.md)
+[Previous Lesson](../call-and-bridge/README.md)   
+[Next Lesson](../call-make-recording/README.md)  
