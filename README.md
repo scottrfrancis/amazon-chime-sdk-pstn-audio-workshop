@@ -42,6 +42,12 @@ PSTN Audio applications are serverless application built using [Amazon Lambda](h
 * [Call and Bridge Another Call](./lambdas/call-and-bridge) (teachs how to bridge calls together, and how to enable/disable Amazon Voice Focus noise suppression)
 * [Call a Voice Chat-Bot](./lambdas/call-lex-bot) (teaches how to connect a phone call to an Amazon Lex chat bot)
 
+## Cleanup
+
+Deploying resources from this repository will create CloudFormation stacks.  To remove those running resources you can simply delete the stack.  To do that, you can type "yarn destroy" in the folder where you deployed the resources with "yarn deploy."  
+
+NOTE:  since each of the example lessons in the "lambda" lessons deploys it's own small stack for just that lambda, to completely clean up those resources you should also run "yarn destroy" from each folder where you deploy the lambda.
+
 ## Disclaimers
 
 Deploying the Amazon Chime SDK demo applications contained in this repository will cause your AWS Account to be billed for services, including the Amazon Chime SDK, used by the application.  Each of the child workshop lessons also create resources.  To minimize your expenses, after finishing this workshop please delete the resources you created.  This can be done by running 'yarn destroy' from this directory and from each of the workshop lesson folders that you deployed.

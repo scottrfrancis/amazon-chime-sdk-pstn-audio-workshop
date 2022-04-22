@@ -50,10 +50,10 @@ exports.handler = async (event: any, context: any, callback: any) => {
         response.Actions = recordCall(event);
       }
       if (event.CallDetails.TransactionAttributes.state == "recording") {
-        response.TransactionAttributes = { "state": "processing" };
+        response.TransactionAttributes = { "state": "playing" };
         response.Actions = playbackRecording(event);
       }
-      if (event.CallDetails.TransactionAttributes.state == "processing") {
+      if (event.CallDetails.TransactionAttributes.state == "playing") {
         response.TransactionAttributes = { "state": "finishing" };
         response.Actions = endCall(event);
       }
@@ -102,6 +102,7 @@ function playbackRecording(event: any) {
 
 function endCall(event: any) {
   speakAction.Parameters.Text = "<speak>Thank you!  Goodbye!</speak>";
+  
   return [pauseAction, speakAction, hangupAction];
 }
 
