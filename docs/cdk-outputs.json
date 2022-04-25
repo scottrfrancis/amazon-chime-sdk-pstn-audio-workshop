@@ -1,9 +1,0 @@
-{
-  "AmazonChimeSdkPstnAudioWorkshopStack": {
-    "phoneNumber": "+15053573759",
-    "smaId": "8918ef7a-a56d-4551-a540-3d31d48bcc41",
-    "smaHandlerArn": "arn:aws:lambda:us-east-1:497939524935:function:AmazonChimeSdkPstnAudioWorkshopS-smaLambdaF902E845-7Gqm1iRoxLr2",
-    "logGroup": "/aws/lambda/AmazonChimeSdkPstnAudioWorkshopS-smaLambdaF902E845-7Gqm1iRoxLr2",
-    "smaHandlerName": "AmazonChimeSdkPstnAudioWorkshopS-smaLambdaF902E845-7Gqm1iRoxLr2"
-  }
-}
