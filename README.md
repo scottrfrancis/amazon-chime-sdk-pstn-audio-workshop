@@ -37,10 +37,17 @@ PSTN Audio applications are serverless application built using [Amazon Lambda](h
 
 ## Workshop Lessons/Examples
 
-* [Call Recorded Message](./lambdas/call-play-recording) (teaches how to answer a phone call and play a message file)
-* [Call Me Back](lambdas/call-me-back) (teaches how to make outbound phone calls using voice-to-text using Amazon Polly)
-* [Call and Bridge Another Call](./lambdas/call-and-bridge) (teachs how to bridge calls together, and how to enable/disable Amazon Voice Focus noise suppression)
-* [Call a Voice Chat-Bot](./lambdas/call-lex-bot) (teaches how to connect a phone call to an Amazon Lex chat bot)
+* [Call Recorded Message](./lambdas/call-play-recording/README.md) (teaches how to answer a phone call and play a message file)
+* [Call Me Back](./lambdas/call-me-back/README.md) (teaches how to make outbound phone calls using voice-to-text using Amazon Polly)
+* [Call and Bridge Another Call](./lambdas/call-and-bridge/README.md) (teachs how to bridge calls together, and how to enable/disable Amazon Voice Focus noise suppression)
+* [Call a Voice Chat-Bot](./lambdas/call-lex-bot/README.md) (teaches how to connect a phone call to an Amazon Lex chat bot)
+* [Call and Make Recording](./lambdas/call-make-recording/README.md) (teaches how to record a call and play the recording back)
+
+## Cleanup
+
+Deploying resources from this repository will create CloudFormation stacks.  To remove those running resources you can simply delete the stack.  To do that, you can type "yarn destroy" in the folder where you deployed the resources with "yarn deploy."  
+
+NOTE:  since each of the example lessons in the "lambda" lessons deploys it's own small stack for just that lambda, to completely clean up those resources you should also run "yarn destroy" from each folder where you deploy the lambda.
 
 ## Disclaimers
 
