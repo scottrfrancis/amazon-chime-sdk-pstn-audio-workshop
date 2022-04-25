@@ -68,6 +68,8 @@ exports.handler = async (event: any, context: any, callback: any) => {
       break;
 
     default:
+      console.log('default case');
+      console.log(JSON.stringify(event));
   }
   console.log('Sending response:' + JSON.stringify(response));
   callback(null, response);

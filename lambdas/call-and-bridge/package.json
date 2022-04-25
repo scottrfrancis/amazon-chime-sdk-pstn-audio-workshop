@@ -11,7 +11,7 @@
     "test": "jest",
     "clean": "scripts/clean",
     "deploy": "yarn install && yarn build && cdk deploy --outputs-file ./cdk-outputs.json --hotswap",
-    "destroy": "cdk destroy --force",
+    "destroy": "cdk destroy",
     "number": "scripts/number",
     "lambda": "scripts/lambda",    
     "active": "scripts/active",

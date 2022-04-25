@@ -10,7 +10,7 @@
     "watch": "tsc -w",
     "test": "jest",
     "deploy": "yarn install && yarn build && cdk deploy --outputs-file ./cdk-outputs.json && yarn number",
-    "destroy": "cdk destroy --force",
+    "destroy": "cdk destroy",
     "number": "scripts/number",
     "lambda": "scripts/lambda",
     "logs": "scripts/logs",

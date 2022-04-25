@@ -19,7 +19,7 @@ The call will progress through the following states:
 * playing
 * finishing
 
-We set the "state" by using TransactionAttributes.  These enable lambda developers to store application-specific information in the SMA and transparently passed in the event object of every subsequent invocation for that session.  A session is for the lifetime of that call (inbound or outbound). This feature removes the need for customers to store this type of information in an external database like DynamoDB.  These attributes are covered in detail in the [How it Works](https://github.com/aws-samples/amazon-chime-sdk-pstn-audio-workshop/tree/main/docs/how-it-works#lambda-transactionattributes) document.  
+We set the "state" by using TransactionAttributes.  These enable lambda developers to store application-specific information in the SMA and transparently passed in the event object of every subsequent invocation for that session.  A session is for the lifetime of that call (inbound or outbound). This feature removes the need for customers to store this type of information in an external database like Amazon DynamoDB.  These attributes are covered in detail in the [How it Works](https://github.com/aws-samples/amazon-chime-sdk-pstn-audio-workshop/tree/main/docs/how-it-works#lambda-transactionattributes) document.  
 
 State is set and evaluated where we process the ACTION_SUCCESSFUL events:
 
