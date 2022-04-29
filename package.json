@@ -35,6 +35,7 @@
     "constructs": "^10.0.0",
     "esbuild": "^0.14.23",
     "source-map-support": "^0.5.16",
+    "stream": "^0.0.2",
     "uuid": "^8.3.2"
   }
 }

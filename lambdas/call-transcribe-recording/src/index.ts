@@ -22,11 +22,10 @@
 import 'source-map-support/register';
 import { TranscribeClient, StartTranscriptionJobCommand, GetTranscriptionJobCommand, CallAnalyticsJobStatus } from "@aws-sdk/client-transcribe";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { Stream } from 'stream'
 
 const transcribeClient = new TranscribeClient({});
 const wavFileBucket = process.env['WAVFILE_BUCKET'];
-
-//const chimeClient = new ChimeClient({ region: "REGION" });
 
 let generalResponse: smaResponse = {
   SchemaVersion: '1.0',
@@ -122,32 +121,34 @@ async function transcribeRecording(event: any) {
   } catch (err) {
     console.log("Error", err);
   }
-  console.log("Transcribing recording, please wait");
-  speakAction.Parameters.Text = "<speak>Transcribing recording, please wait</speak>";
+  speakAction.Parameters.Text = "<speak>Transcribing recording, please wait.  This may take up to fifteen seconds.</speak>";
   return [speakAction];
 }
 
 
 async function playbackRecording(event: any) {
-  speakAction.Parameters.Text = "<speak>Your message said</speak>";
   const params = event.CallDetails.TransactionAttributes.params;
   console.log("params:", params);
   var loop = true;
   var status;
+
+  speakAction.Parameters.Text = "<speak>Sorry, we encountered an error transcribing your message</speak>"
+
   while (loop) {
     status = await getTransaction(event);
     switch (status) {
       case null:
         loop = false;
         console.log("Error: no response object for transcription");
+        break;
       case CallAnalyticsJobStatus.COMPLETED:
         console.log("COMPLETED");
         loop = false;
-        const obj = await downloadFromS3(params);
-        //        const obj = await downloadObject(url)
-        if (obj) {
-          console.log("Body: ", JSON.stringify(obj));
-        }
+        const result = await downloadFromS3(params);
+        var jsonResult: TranscribeResult;
+        jsonResult = JSON.parse(result as string);
+        const transcript = jsonResult.results.transcripts[0].transcript;
+        speakAction.Parameters.Text = "<speak>Your message says, " + transcript + " </speak>";
         break;
       case CallAnalyticsJobStatus.FAILED:
         console.log("FAILED");
@@ -155,11 +156,17 @@ async function playbackRecording(event: any) {
         break;
       case CallAnalyticsJobStatus.IN_PROGRESS:
       case CallAnalyticsJobStatus.QUEUED:
+        loop = true; // wait for completion
+        await new Promise(r => setTimeout(r, 500));
+        break;
     }
-    await new Promise(r => setTimeout(r, 500));
   }
   return [speakAction];
 }
+
+
+
+
 
 async function getTransaction(event: any) {
 
@@ -178,22 +185,58 @@ async function getTransaction(event: any) {
   return null;
 }
 
+
+interface Transcript {
+  transcript: string;
+}
+
+interface Alternative {
+  confidence: string;
+  content: string;
+}
+
+interface Item {
+  start_time: string;
+  end_time: string;
+  alternatives: Alternative[];
+  type: string;
+}
+
+interface Results {
+  transcripts: Transcript[];
+  items: Item[];
+}
+
+interface TranscribeResult {
+  jobName: string;
+  accountId: string;
+  results: Results;
+  status: string;
+}
+
 async function downloadFromS3(params: any) {
   const client = new S3Client({});
   const command = new GetObjectCommand({ Bucket: params.OutputBucketName, Key: params.OutputKey });
   console.log("bucket:", params.OutputBucketName);
   console.log("key:   ", params.OutputKey);
+
+  const streamToString = (stream: any) => {
+    return new Promise((resolve, reject) => {
+      const chunks: any = [];
+      stream.on("data", (chunk: any) => chunks.push(chunk));
+      stream.on("error", reject);
+      stream.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+    });
+  };
   try {
     const response = await client.send(command);
-    if (response.Body) {
-      return response.Body;
-    }
+    const body = await streamToString(response.Body);
+    return body;
   } catch (err) {
     console.log("Error", err);
   }
-  return null;
+  return "";
 }
-
 
 
 
