@@ -48,4 +48,10 @@ test('hangup', done => {
     expect_response(event, generic_response, done);
 })
 
+test('bad type', done => {
+    let event = test_event;
+    event.InvocationEventType = "IMBAAD";
+    expect_response(event, generic_response, done);
+})
+
 })
