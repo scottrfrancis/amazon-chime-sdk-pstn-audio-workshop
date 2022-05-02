@@ -13,7 +13,7 @@
     "deploy": "yarn install && yarn build && cdk deploy --outputs-file ./cdk-outputs.json --hotswap",
     "destroy": "cdk destroy",
     "number": "scripts/number",
-    "lambda": "scripts/lambda",    
+    "lambda": "scripts/lambda",
     "active": "scripts/active",
     "swap": "scripts/swap && scripts/active",
     "status": "scripts/status",
@@ -22,13 +22,14 @@
     "logs": "scripts/logs"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.10",
+    "@types/jest": "^27.4.1",
     "@types/node": "10.17.27",
     "aws-cdk": "2.12.0",
-    "jest": "^26.4.2",
-    "ts-jest": "^26.2.0",
-    "ts-node": "^9.0.0",
-    "typescript": "~3.9.7"
+    "jest": "27",
+    "ts-jest": "^27.1.4",
+    "ts-node": "^10.7.0",
+    "ts-node-dev": "^1.1.8",
+    "typescript": "^4.6.4"
   },
   "dependencies": {
     "@aws-sdk/client-chime": "^3.52.0",
