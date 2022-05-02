@@ -199,8 +199,42 @@ The parent project deploys the S3 bucket for this example.  When you destroy the
       removalPolicy: RemovalPolicy.DESTROY,
     });
 ```    
-
 If your application needs to preserve recordings, you can change these settings.  Please be aware that chaning these settings will incur costs for storage of the recordings.
+
+We also had to add permissions to use Amazon Transcribe:
+
+```typescript
+ const wavFileBucketPolicy2 = new iam.PolicyStatement({
+      effect: iam.Effect.ALLOW,
+      actions: [
+        's3:PutObject', 's3:PutObjectAcl', 's3:GetObject',
+      ],
+      resources: [
+        wavFiles.bucketArn,
+        `${wavFiles.bucketArn}/*`
+      ],
+      sid: 'TranscribeOperations',
+    });
+    wavFileBucketPolicy2.addServicePrincipal('transcribe.amazonaws.com');
+    wavFiles.addToResourcePolicy(wavFileBucketPolicy2);
+```
+
+Also, we had to expand the role:
+
+```typescript
+     ['transcribePolicy']: new iam.PolicyDocument({
+          statements: [
+            new iam.PolicyStatement({
+              resources: ['*'],
+              actions: ['transcribe:StartTranscriptionJob', 'transcribe:GetTranscriptionJob',],
+            }),
+          ],
+        }),
+      },
+```
+
+These allow Amazon Transcribe the ability to read and write to the S3 bucket, and for your lambda function to call Transcribe.
+
 
 You can get more information on the CDK deployment scripts in the [How It Works](../../docs/how-it-works/) section.
 
