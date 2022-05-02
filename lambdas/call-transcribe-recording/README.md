@@ -1,4 +1,4 @@
-# Example 5: Call and Make Recording
+# Example 5: Call and Transcribe Recording
 
 [Previous Lesson](../call-make-recording/README.md)  
 [Next Lesson](../../README.md)  
