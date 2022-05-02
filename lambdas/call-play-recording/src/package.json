@@ -1,6 +1,7 @@
 {
   "scripts": {
-    "test": "jest"
+    "test": "jest --coverage",
+    "test:watch": "jest --watch --coverage" 
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",
