@@ -1,4 +1,6 @@
-import { doesNotReject } from "assert";
+import { doesNotReject } from "assert"
+import { AnyPrincipal } from "aws-cdk-lib/aws-iam"
+import { env } from 'process'
 
 describe('call-make-recording', () => {
     beforeEach(() => {
@@ -55,15 +57,97 @@ test('success new', done => {
     expect_response(event, success_new_response, done)
 })
 
-test('succcess beeping', done => {
+test('succcess beeping without bucket', done => {
     console.log("TEST: success beeping")
+
+    let bucket_was_set = (env.WAVFILE_BUCKET !== undefined)
+    let old_bucket = ''
+    if  (bucket_was_set) {
+        old_bucket = env.WAVFILE_BUCKET as string
+        delete env.WAVFILE_BUCKET
+    }
 
     let event = {...test_event}
     event.InvocationEventType = "ACTION_SUCCESSFUL"
     event.CallDetails.TransactionAttributes = {"state": "beeping"}
 
-    const beeping_response = {"SchemaVersion":"1.0","Actions":[{"Type":"RecordAudio","Parameters":{"CallId":"9ff01357-23c5-4611-9dd3-f05f9d654faa","DurationInSeconds":"30","SilenceDurationInSeconds":3,"SilenceThreshold":100,"RecordingTerminators":["#"],"RecordingDestination":{"Type":"S3","BucketName":"valid-bucket-name","Prefix":"9ff01357-23c5-4611-9dd3-f05f9d654faa-"}}}],"TransactionAttributes":{"state":"recording"}}
-    expect_response(event, beeping_response, done)
+    let lam = require("../index")
+    lam.handler(event, null, (_: any, r: any) => {
+        try {
+            console.log(JSON.stringify(r))
+
+            expect(r).toEqual(expect.objectContaining({'SchemaVersion':'1.0'}))
+
+            let ra = r.Actions.filter((a:any) => a.Type === 'RecordAudio')
+            expect(ra.len == 1)
+            expect(ra[0]).toHaveProperty('Parameters.DurationInSeconds')
+            expect(ra[0]).toHaveProperty('Parameters.SilenceDurationInSeconds')
+            expect(ra[0]).toHaveProperty('Parameters.SilenceThreshold')
+            expect(ra[0]).toHaveProperty('Parameters.RecordingDestination')
+            expect(ra[0]).toHaveProperty('Parameters.RecordingDestination.BucketName')
+            expect(ra[0]).toHaveProperty('Parameters.RecordingDestination.Prefix')
+            expect(ra[0].Parameters.RecordingDestination.Type === 'S3')
+            expect(ra[0]).toHaveProperty('Parameters.RecordingTerminators')
+
+            expect(r).toEqual(
+                expect.objectContaining({'TransactionAttributes': {'state': 'recording'}}) )
+            done()
+        } catch (e) {
+            console.log("UNMATCHING RESPONSE: ", r, " TO ", event)
+            done(e)
+        } finally {
+            if (bucket_was_set) {
+                env.WAVFILE_BUCKET = old_bucket }
+        }
+    })
+})
+
+test('succcess beeping with bucket', done => {
+    console.log("TEST: success beeping")
+
+    let bucket_was_set = (env.WAVFILE_BUCKET !== undefined)
+    let old_bucket = ''
+    if  (bucket_was_set) {
+        old_bucket = env.WAVFILE_BUCKET as string
+    }
+    env.WAVFILE_BUCKET = 'test_bucket'
+
+    let event = {...test_event}
+    event.InvocationEventType = "ACTION_SUCCESSFUL"
+    event.CallDetails.TransactionAttributes = {"state": "beeping"}
+
+    let lam = require("../index")
+    lam.handler(event, null, (_: any, r: any) => {
+        try {
+            console.log(JSON.stringify(r))
+
+            expect(r).toEqual(expect.objectContaining({'SchemaVersion':'1.0'}))
+
+            let ra = r.Actions.filter((a:any) => a.Type === 'RecordAudio')
+            expect(ra.len == 1)
+            expect(ra[0]).toHaveProperty('Parameters.DurationInSeconds')
+            expect(ra[0]).toHaveProperty('Parameters.SilenceDurationInSeconds')
+            expect(ra[0]).toHaveProperty('Parameters.SilenceThreshold')
+            expect(ra[0]).toHaveProperty('Parameters.RecordingDestination')
+            expect(ra[0].Parameters.RecordingDestination.BucketName == 'test_bucket')
+            expect(ra[0]).toHaveProperty('Parameters.RecordingDestination.Prefix')
+            expect(ra[0].Parameters.RecordingDestination.Type === 'S3')
+            expect(ra[0]).toHaveProperty('Parameters.RecordingTerminators')
+
+            expect(r).toEqual(
+                expect.objectContaining({'TransactionAttributes': {'state': 'recording'}}) )
+            done()
+        } catch (e) {
+            console.log("UNMATCHING RESPONSE: ", r, " TO ", event)
+            done(e)
+        } finally {
+            if (bucket_was_set) {
+                env.WAVFILE_BUCKET = old_bucket 
+            } else {
+                delete env.WAVFILE_BUCKET
+            }
+        }
+    })
 })
 
 test('succcess recording', done => {
