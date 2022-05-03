@@ -7,51 +7,75 @@ describe('call-play-recording', () => {
 
     let test_event = require("../../events/inbound.json")
 
-    const generic_response = {
-        SchemaVersion: '1.0',
-        Actions: [],
+    function expect_schema_10(r: any) {
+        expect(r).toEqual(expect.objectContaining({'SchemaVersion':'1.0'}))
     }
 
-    function expect_response(event:any, resp:any, done:any) {
-        let lam = require("../index")
+    function expect_pause(r: any) {
+        let rp = r.Actions.filter((a:any) => a.Type === 'Pause')
+        expect(rp.len == 1)
+        expect(rp[0]).toHaveProperty('Parameters.DurationInMilliseconds')
+    }
 
-        lam.handler(event, null, (_: any, r: any) => {
+    function expect_play(r: any) {
+        let rp = r.Actions.filter((a:any) => a.Type === 'PlayAudio')
+        expect(rp.len == 1)
+        expect(rp[0]).toHaveProperty('Parameters.AudioSource')
+    }
+
+    function expect_hangup(r: any) {
+        let rp = r.Actions.filter((a:any) => a.Type === 'Hangup')
+        expect(rp.len == 1)
+        expect(rp[0].Parameters.SipResponseCode == 0)
+    }
+
+    function call_and_expect(event: any, expectations: any, done: any) {
+        require("../index").handler(event, null, (_:any, r:any) => {
+            let error = null
             try {
-                expect(r).toEqual(resp)
-                done()
-            } catch (e) {
-                console.log("got response of ", r)
-                done(e)
+                expectations.forEach((e:any) => {
+                    e(r)
+                })
+            } catch (err: any) {
+                error = err
+            } finally {
+                done(error)
             }
         })
     }
 
 test('empty event', done => {
     let event = {};
-    expect_response(event, generic_response, done);
+    call_and_expect(event, [expect_schema_10], done)
 })
 
 test('new call', done => {
-    const new_call_result = { "SchemaVersion": "1.0", "Actions": [{ "Type": "Pause", "Parameters": { "DurationInMilliseconds": "1000" } }, { "Type": "PlayAudio", "Parameters": { "Repeat": "1", "AudioSource": { "Type": "S3", "Key": "hello-goodbye.wav" } } }, { "Type": "Hangup", "Parameters": { "SipResponseCode": "0", "ParticipantTag": "" } }], "TransactionAttributes": { "key1": "val1*", "key2": "val2*", "key3": "val3*" } }
-    expect_response(test_event, new_call_result, done);
+    let event = {...test_event}
+
+    call_and_expect(event, [
+        expect_schema_10,
+        expect_pause,
+        expect_play,
+        expect_hangup
+    ], done)
 })
 
 test('sucess', done => {
-    let event = test_event;
-    event.InvocationEventType = "ACTION_SUCCESSFUL";
-    expect_response(event, generic_response, done);
+    let event = {...test_event}
+    event.InvocationEventType = "ACTION_SUCCESSFUL"
+    call_and_expect(event, [expect_schema_10], done)
 })
 
 test('hangup', done => {
-    let event = test_event;
-    event.InvocationEventType = "HANGUP";
-    expect_response(event, generic_response, done);
+    let event = {...test_event}
+    event.InvocationEventType = "HANGUP"
+    call_and_expect(event, [expect_schema_10], done)
 })
 
 test('bad type', done => {
-    let event = test_event;
-    event.InvocationEventType = "IMBAAD";
-    expect_response(event, generic_response, done);
+    let event = {...test_event}
+    event.InvocationEventType = "IMBAAD"
+    call_and_expect(event, [expect_schema_10], done)
 })
 
 })
