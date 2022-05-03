@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/python3
 
 # Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: MIT-0
@@ -17,44 +17,19 @@
 # SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 # 
 
-# transpile the target lambda for TYPESCRIPT
-pushd ..
-tsc index.ts
-popd
+import json
+import sys
 
-echo "Using node $(node -v)"
+from lambda_function import handler
 
-# setup pythonpath for PYTHON
-pushd ..
-export PYTHONPATH=$PYTHONPATH:$(pwd)
-popd
+event_file = sys.argv[1]
+out_file = sys.argv[2]
 
+with open(event_file) as f:
+    event = json.load(f)
 
-# node ./lambda-runner.js <event_file> out.json
-# ajv validate
-# install with `npm install -g ajv-cli`
-# also jq -- `brew install jq` | `sudo apt install jq`
+r = handler(event, None)
 
-echo ""; echo "BEGIN testing"; echo ""
-
-
-# 
-# 1. basic events
-#
-pushd cases/basic
-./basic.bash
-basic_result=$?
-popd
-
-# 
-# 2. new call event
-#
-pushd cases/new-call
-./new-call.bash
-new_call_result=$?
-popd
-
-echo ""; echo "TESTING COMPLETE"; echo ""
-
-
-[[ $basic_result -eq 0 ]] && [[ $new_call_result -eq 0 ]] && echo "ALL PASS" || echo "FAILURES"
+with open(out_file, mode='w') as f:
+    s = json.dumps(r, indent=2)
+    f.write(s)

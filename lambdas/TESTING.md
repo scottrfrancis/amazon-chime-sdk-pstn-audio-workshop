@@ -76,3 +76,20 @@ cd cases/new-call
 ```
 
 **Coverage analysis and debugging** is not supported from the bash scripts.
+
+
+## Python dependencies
+
+* jsonschema
+
+Install from a lambda function's `src` directory with
+
+```bash
+pip3 install -r requirements.txt
+```
+
+## Python Notes
+
+Debugging in VSCode:
+- open a new window focused on the `src` dir
+- disable the JEST plugin to get test exploration in sidebar
