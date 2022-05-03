@@ -1,0 +1,34 @@
+{
+    "required": [
+          "SchemaVersion",
+          "Actions",
+          "TransactionAttributes"
+      ],
+      "properties": {
+          "SchemaVersion": {
+              "type": "string",
+              "const": "1.0"
+          },
+          "Actions": {
+              "type": "array",
+              "items": {
+                  "type": "object",
+                  "required": [
+                      "Type",
+                      "Parameters"
+                  ],
+                  "properties": {
+                      "Type": {
+                          "type": "string"
+                      },
+                      "Parameters": {
+                          "type": "object"
+                      }
+                  }
+              }
+          },
+          "TransactionAttributes": {
+              "type": "object"
+          }
+      }
+  }

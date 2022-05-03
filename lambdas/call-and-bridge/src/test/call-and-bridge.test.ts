@@ -10,10 +10,6 @@ describe('call-and-bridge', () => {
 
     let test_event = require("../../events/inbound.json")
 
-    // const generic_response = {
-    //     SchemaVersion: '1.0',
-    //     Actions: [],
-    // }
     const hangup_response = {
         SchemaVersion:"1.0",
         Actions:[
@@ -22,20 +18,6 @@ describe('call-and-bridge', () => {
                   SipResponseCode:"0",
                   ParticipantTag:""
     }}]}
-
-    function expect_response(event:any, resp:any, done:any) {
-        let lam = require("../index")
-
-        lam.handler(event, null, (_: any, r: any) => {
-            try {
-                expect(r).toEqual(resp)
-                done()
-            } catch (e) {
-                console.log("UNMATCHING RESPONSE: ", r, " TO ", event);
-                done(e)
-            }
-        })
-    }
 
     function expect_schema_10(r: any) {
         expect(r).toEqual(expect.objectContaining({'SchemaVersion':'1.0'}))
