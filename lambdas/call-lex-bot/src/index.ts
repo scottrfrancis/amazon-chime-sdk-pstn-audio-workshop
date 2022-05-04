@@ -17,6 +17,7 @@
  */
 
 import { ChimeClient, CreateSipMediaApplicationCallCommand } from "@aws-sdk/client-chime";
+import { RestApi } from "aws-cdk-lib/aws-apigateway";
 import 'source-map-support/register';
 
 
@@ -76,15 +77,19 @@ const startBotConversationAction = {
         },
       ]
     }
-  }
+  },
 }
 
 function actionSuccessful(event: any) {
-
-  if (event.ActionData.IntentResult.SessionState.Intent.Name == "FallbackIntent") {
-    return [pauseAction, startBotConversationAction];
+  try {
+    if (event.ActionData.IntentResult.SessionState.Intent.Name == "FallbackIntent") {
+      return [pauseAction, startBotConversationAction];
+    }
+  } catch {
+    //noop -- if the property chain doesn't exist OR if it's not "FallbackIntent" return hangup chain
   }
-  return [pauseAction, hangupAction];
+
+  return [pauseAction, hangupAction]
 }
 
 interface smaAction {
