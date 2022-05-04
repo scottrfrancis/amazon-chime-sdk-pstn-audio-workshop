@@ -1,10 +1,10 @@
 #!/bin/bash
 BASEDIR=../..
-SMA_ID=$(jq -r .[].smaId $BASEDIR/cdk-outputs.json)  # parent CDK folder
-ACTIVE=$(aws chime get-sip-media-application --sip-media-application-id  $SMA_ID | jq -r .[].Endpoints[0].LambdaArn)
+SMA_ID=$(jq -r '.[].smaId' $BASEDIR/cdk-outputs.json)  # parent CDK folder
+ACTIVE=$(aws chime get-sip-media-application --sip-media-application-id  $SMA_ID | jq -r '.[].Endpoints[0].LambdaArn')
 
-PARENT=$(jq -r .[].smaHandlerArn $BASEDIR/cdk-outputs.json) 
-LOCAL=$(jq -r .[].smaHandlerArn ./cdk-outputs.json) 
+PARENT=$(jq -r '.[].smaHandlerArn' $BASEDIR/cdk-outputs.json) 
+LOCAL=$(jq -r '.[].smaHandlerArn' ./cdk-outputs.json) 
 DONE="There is an error, please check the lambda associations"
 
 P="PARENT is active:    $PARENT"
