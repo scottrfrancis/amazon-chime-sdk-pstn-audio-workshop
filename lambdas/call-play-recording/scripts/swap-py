@@ -5,7 +5,7 @@ ACTIVE=$(aws chime get-sip-media-application --sip-media-application-id  $SMA_ID
 echo "Active lambda is: $ACTIVE"
 
 PARENT=$(jq -r '.[].smaHandlerArn' $BASEDIR/cdk-outputs.json) 
-LOCAL=$(jq -r '.[].smaHandlerArn' ./cdk-outputs.json) 
+LOCAL=$(jq -r '.[].pyHandlerArn' ./cdk-outputs.json) 
 DONE="There is an error, please check the lambda associations"
 
 echo "PARENT lambda:    $PARENT"
