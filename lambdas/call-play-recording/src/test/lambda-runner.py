@@ -20,7 +20,7 @@
 import json
 import sys
 
-from lambda_function import handler
+from index import handler
 
 event_file = sys.argv[1]
 out_file = sys.argv[2]
