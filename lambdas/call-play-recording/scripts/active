@@ -5,14 +5,19 @@ ACTIVE=$(aws chime get-sip-media-application --sip-media-application-id  $SMA_ID
 
 PARENT=$(jq -r '.[].smaHandlerArn' $BASEDIR/cdk-outputs.json) 
 LOCAL=$(jq -r '.[].smaHandlerArn' ./cdk-outputs.json) 
+LOCAL_PY=$(jq -r '.[].pyHandlerArn' ./cdk-outputs.json) 
 DONE="There is an error, please check the lambda associations"
 
 P="PARENT is active:    $PARENT"
 L="LOCAL is active:     $LOCAL"
+PY="  *PYTHON* version"
 
 if [ $ACTIVE == $PARENT ]; then
   echo $P
-fi
-if [ $ACTIVE == $LOCAL ]; then
+elif [ $ACTIVE == $LOCAL ]; then
   echo $L
+elif [ $ACTIVE == $LOCAL_PY ]; then
+  echo $L; echo $PY
+else
+  echo $DONE
 fi
