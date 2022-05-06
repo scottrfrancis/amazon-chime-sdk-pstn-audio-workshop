@@ -1,8 +1,62 @@
-import { doesNotReject } from "assert";
+import { doesNotReject } from "assert"
+
+// spies -- aka Pass-thru-Mocks
+import * as Chime from "@aws-sdk/client-chime"
+import { resolve } from "dns"
+import { send } from "process"
+let constructor_call_cnt = 0
+let send_force_error = false
+const forced_error_message = "forced error"
+
+const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
+
+let original_send:any = null
+function my_send<InputType extends object,
+    OutputType extends object>(
+        command: object, //AWS.Command<AWS.ClientInput, InputType, AWS.ClientOutput, OutputType, AWS.SmithyResolvedConfiguration<AWS.HandlerOptions>>, 
+        options?: object //AWS.HandlerOptions
+        ): Promise<any> {
+
+    if (!send_force_error && (original_send !== null)) {
+        return original_send(command, options)
+    } else {
+        let p = new Promise((resolve, reject) => {
+            reject(forced_error_message)
+        })
+
+        return p
+    }
+}
+
+jest.mock('@aws-sdk/client-chime', () => {
+    const original = jest.requireActual('@aws-sdk/client-chime')
+
+    return {
+        ...original,
+        ChimeClient: jest.fn()
+            .mockImplementation((arg) => {
+                console.log(arg)
+                constructor_call_cnt += 1
+
+                let a_client = new original.ChimeClient(arg)
+                if (send_force_error) {
+                    original_send = a_client.send
+                    a_client.send = my_send
+                }
+
+                return a_client
+        })
+    }
+})
+
+
 
 describe('call-me-back', () => {
     beforeEach(() => {
         jest.resetModules()
+        constructor_call_cnt = 0
+        send_force_error = false
+        consoleSpy.mockClear()
     })
 
     let test_event = require("../../events/inbound.json")
@@ -20,12 +74,18 @@ describe('call-me-back', () => {
                   ParticipantTag:""
     }}]}
 
-    function expect_response(event:any, resp:any, done:any) {
+    async function expect_response(event:any, resp:any, done:any) {
         let lam = require("../index")
 
-        lam.handler(event, null, (_: any, r: any) => {
+        await lam.handler(event, null, async (_: any, r: any) => {
             try {
+                expect(constructor_call_cnt > 0)
                 expect(r).toEqual(resp)
+                if (send_force_error) {
+                    // need to wait for console log to catch up
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    expect(console.log).toHaveBeenCalledWith(forced_error_message)
+                }
                 done()
             } catch (e) {
                 console.log("UNMATCHING response of ", r)
@@ -33,6 +93,7 @@ describe('call-me-back', () => {
             }
         })
     }
+
 
 test('empty event', done => {
     let event = {}
@@ -50,10 +111,22 @@ test('success', done => {
     expect_response(event, hangup_response, done)
 })
 
-test('hangup', done => {
+test('first hangup', done => {
     let event = test_event
     event.InvocationEventType = "HANGUP"
+
+    send_force_error = false
     expect_response(event, generic_response, done)
+})
+
+test('force hangup error', done => {
+    let event = test_event
+    event.InvocationEventType = "HANGUP"
+
+    send_force_error = true
+
+    expect_response(event, generic_response, done)
+    send_force_error = false    // probably superfluous, beforeEach should reset
 })
 
 test('second hangup', done => {

@@ -7,4 +7,13 @@ rm -Rf package-lock.json yarn.lock
 rm -Rf src/*~ lib/*~ test/*~ userdata/*~ scripts/*~ configs/*~
 echo "removing node_modules, this takes a moment..."
 rm -Rf node_modules
+# remove testing cruft
+rm -f src/*.d.ts src/*.js
+rm -Rf src/coverage
+rm -Rf src/node_modules
+mv src/test/lambda-runner.js src/test/lambda-runner.js.save
+rm src/test/*.d.ts src/test/*.js
+mv src/test/lambda-runner.js.save src/test/lambda-runner.js
+rm -Rf src/test/cases/**/*-event*.json
+rm -Rf src/test/cases/**/*-out*.json
 echo "all done!"

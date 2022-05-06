@@ -49,6 +49,7 @@ yarn test
   - Running the tests from the command line (`yarn test`) is recommended.
   - The VS Code debugger must first be 'activated' by opening the package.json file, which will overlay a 'Debug' icon above the `scripts` property.  Click this icon, select 'test' and debug the code. Subsequent invocations of `yarn test` from the command line will automatically attach the debugger.
 * Inspect the coverage provided by the tests. Open the coverage report from `coverage/lcov-report/index.html` in a browser. This report is 'live' in that as you re-run the tests, the report is updated, but you will need to refresh the browser. The report is interactive and allows exploration of what code has been tested or missed. Test cases can be added as needed to improve coverage.
+* Single tests can be run by using the `-t <susbstring>` option to `yarn test`.  Tests with descriptions matching the substring will be run.
 
 ## Running bash scripts with a lambda runner
 
