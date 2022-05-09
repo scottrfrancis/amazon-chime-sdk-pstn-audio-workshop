@@ -21,7 +21,7 @@ import json
 from jsonschema import validate
 import unittest
 
-from lambda_function import handler
+from index import handler
 
 
 class Test_Lambda_Function(unittest.TestCase):

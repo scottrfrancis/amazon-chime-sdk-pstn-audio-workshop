@@ -110,7 +110,6 @@ export class CallPlayRecordingStack extends Stack {
     const pyLambda = new PythonFunction(this, 'pyLambda', {
       entry: 'src/',
       handler: 'handler',
-      // bundling: { },
       environment: { 
         WAVFILE_BUCKET: wavFiles.bucketName,
       },

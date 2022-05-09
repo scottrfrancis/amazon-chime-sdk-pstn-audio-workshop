@@ -17,13 +17,21 @@ All the Lambda functions have at least one sample event in the `lambdas/<functio
 
 1. Change to the 'src' directory of the desired lambda function, `call-play-recording` for example.
 2. Set `nvm` to use the node version that will be targetted for deployment, e.g. 'v14'
-3. A `package.json` file is provided in the `src` directory to provide test scripts as well as to separate the packages needed for testing from those needed by the CDK project itself. **Install packages in this directory.** Likewise, `tsconfig.json` and `jest.config.js` files are also provided in the `src` directories.
+3. A `package.json` file is provided in the `src` directory to provide test scripts as well as to separate the packages needed for testing from those needed by the CDK project itself. **Install packages in this directory.** Likewise, a `jest.config.ts` file is also provided in the `src` directories.
+
+**While packages should be installed from the `src` directory, they are incremental to those installed from the parent lambda directory. A clean and install from the parent is recommended before starting a test session.** 
 4. Run tests.
 5. Verify pass/fail of tests
 
 ```bash
 # from the lambdas directory
-cd call-play-recording/src
+cd call-play-recording
+# start clean
+yarn clean
+yarn install
+
+# switch to src directory and install additional packages
+cd src
 
 nvm use v14
 node -v >.nvmrc
@@ -35,9 +43,13 @@ yarn test
 
 ### Options, Tips, and Notes
 * Tests can be run in a 'watch' mode with the command `yarn test:watch` which will continually run tests as code changes.
-* TypeScript code is being tested natively and need not be transpiled prior to testing. That is, the test framework runs the transpilation transparently. Therefore, if you have remaining `js` files in the `src` directory, they may interfere with the Jest suite. **Delete transpilied `.js` files from this directory before running Jest`.**
+* TypeScript code is being tested natively and need not be transpiled prior to testing. That is, the test framework runs the transpilation transparently. Therefore, if you have remaining `js` files in the `src` directory, they may interfere with the Jest suite. **Delete transpilied `.js` files from this directory before running Jest.**  The clean script (`yarn clean`) will handle this.
 * Using the [Visual Studio Code](https://code.visualstudio.com/) IDE can be helpful to set breakpoints in both the tests and the lambda function for testing. There are also "Test Explorer" plugins for graphical navigation of tests and status.
-* Inspect the coverage provided by the tests. Open the coverage report from `coverage/lcov-report/index.html` in a browser. This report is 'live' in that as you re-run the tests, the report is updated. The report is interactive and allows exploration of what code has been tested or missed. Test cases can be added as needed to improve coverage.
+  - The current Jest explorer plugin for VS Code does not pick up the tests from this sub-directory.
+  - Running the tests from the command line (`yarn test`) is recommended.
+  - The VS Code debugger must first be 'activated' by opening the package.json file, which will overlay a 'Debug' icon above the `scripts` property.  Click this icon, select 'test' and debug the code. Subsequent invocations of `yarn test` from the command line will automatically attach the debugger.
+* Inspect the coverage provided by the tests. Open the coverage report from `coverage/lcov-report/index.html` in a browser. This report is 'live' in that as you re-run the tests, the report is updated, but you will need to refresh the browser. The report is interactive and allows exploration of what code has been tested or missed. Test cases can be added as needed to improve coverage.
+* Single tests can be run by using the `-t <susbstring>` option to `yarn test`.  Tests with descriptions matching the substring will be run.
 
 ## Running bash scripts with a lambda runner
 
@@ -93,3 +105,26 @@ pip3 install -r requirements.txt
 Debugging in VSCode:
 - open a new window focused on the `src` dir
 - disable the JEST plugin to get test exploration in sidebar
+
+
+Run a single test from cli:
+```bash
+python3 -m unittest -v -k test_new_call  test/lambda_function_test.py
+```
+
+All tests
+```bash
+python3 -m unittest -v test/lambda_function_test.py
+```
+
+Generate coverage report:
+```bash
+coverage run -m unittest -v  test/lambda_function_test.py
+```
+
+makes a `.coverage` file. Can view as HTML with
+```bash
+coverage html
+```
+
+then nav to the `htmlcov` folder, show in finder, open the `index_py.html` file

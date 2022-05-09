@@ -1,8 +1,78 @@
-import { doesNotReject } from "assert";
+import { doesNotReject } from "assert"
+
+// spies -- aka Pass-thru-Mocks
+import * as Chime from "@aws-sdk/client-chime"
+import { resolve } from "dns"
+import { send } from "process"
+import { ResponseHeadersPolicy } from "aws-cdk-lib/aws-cloudfront"
+let constructor_call_cnt = 0
+let send_force_error = false
+let send_force_okay = false
+const forced_error_message = "forced error"
+
+const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
+
+let original_send:any = null
+function my_send<InputType extends object,
+    OutputType extends object>(
+        command: object, //AWS.Command<AWS.ClientInput, InputType, AWS.ClientOutput, OutputType, AWS.SmithyResolvedConfiguration<AWS.HandlerOptions>>, 
+        options?: object //AWS.HandlerOptions
+        ): Promise<any> {
+
+    if (send_force_error) {
+        return new Promise((resolve, reject) => {
+            reject(forced_error_message)
+        })
+    } else if (send_force_okay) {
+        return new Promise((resolve) => {
+            resolve(0)
+        })
+    } else {
+        expect(original_send !== undefined)
+        return original_send(command, options)
+    }
+}
+
+jest.mock('@aws-sdk/client-chime', () => {
+    const original = jest.requireActual('@aws-sdk/client-chime')
+
+    return {
+        ...original,
+        ChimeClient: jest.fn()
+            .mockImplementation((arg) => {
+                console.log(arg)
+                constructor_call_cnt += 1
+
+                let a_client = new original.ChimeClient(arg)
+                if (send_force_error || send_force_okay) {
+                    original_send = a_client.send
+                    a_client.send = my_send
+                }
+
+                return a_client
+        }),
+        CreateSipMediaApplicationCallCommand: jest.fn()
+            .mockImplementation((arg) => {
+                console.log(arg)
+
+                let command = {
+                    "middlewareStack": {},
+                    "input": { ...arg }
+                }
+                return command
+            })
+    }
+})
+
+
 
 describe('call-me-back', () => {
     beforeEach(() => {
         jest.resetModules()
+        constructor_call_cnt = 0
+        send_force_error = false
+        send_force_okay = false
+        consoleSpy.mockClear()
     })
 
     let test_event = require("../../events/inbound.json")
@@ -20,12 +90,25 @@ describe('call-me-back', () => {
                   ParticipantTag:""
     }}]}
 
-    function expect_response(event:any, resp:any, done:any) {
+    async function expect_response(event:any, resp:any, done:any) {
         let lam = require("../index")
 
-        lam.handler(event, null, (_: any, r: any) => {
+        await lam.handler(event, null, async (_: any, r: any) => {
             try {
                 expect(r).toEqual(resp)
+
+                // it creates a Chime Client
+                expect(constructor_call_cnt > 0)
+
+                // if HANGUP event, it calls CreateSipMediaApplicationCallCommand
+                // and the ChimeClient.send respose was good...
+
+                // unless we are forcing the error paths
+                if (send_force_error) {
+                    // need to wait for console log to catch up
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    expect(consoleSpy).toHaveBeenCalledWith(forced_error_message)
+                }
                 done()
             } catch (e) {
                 console.log("UNMATCHING response of ", r)
@@ -33,6 +116,7 @@ describe('call-me-back', () => {
             }
         })
     }
+
 
 test('empty event', done => {
     let event = {}
@@ -50,9 +134,20 @@ test('success', done => {
     expect_response(event, hangup_response, done)
 })
 
-test('hangup', done => {
+test('first hangup', done => {
     let event = test_event
     event.InvocationEventType = "HANGUP"
+
+    send_force_error = false
+    send_force_okay = true
+    expect_response(event, generic_response, done)
+})
+
+test('force hangup error', done => {
+    let event = test_event
+    event.InvocationEventType = "HANGUP"
+
+    send_force_error = true
     expect_response(event, generic_response, done)
 })
 
