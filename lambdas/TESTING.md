@@ -105,3 +105,26 @@ pip3 install -r requirements.txt
 Debugging in VSCode:
 - open a new window focused on the `src` dir
 - disable the JEST plugin to get test exploration in sidebar
+
+
+Run a single test from cli:
+```bash
+python3 -m unittest -v -k test_new_call  test/lambda_function_test.py
+```
+
+All tests
+```bash
+python3 -m unittest -v test/lambda_function_test.py
+```
+
+Generate coverage report:
+```bash
+coverage run -m unittest -v  test/lambda_function_test.py
+```
+
+makes a `.coverage` file. Can view as HTML with
+```bash
+coverage html
+```
+
+then nav to the `htmlcov` folder, show in finder, open the `index_py.html` file

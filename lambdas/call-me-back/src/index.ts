@@ -24,7 +24,7 @@ let generalResponse: smaResponse = {
   Actions: [],
 }
 
-const chimeClient = new ChimeClient({ region: "REGION" });
+const chimeClient = new ChimeClient({ region:  process.env['AWS_REGION'] || 'REGION' });
 
 
 exports.handler = async (event: any, context: any, callback: any) => {

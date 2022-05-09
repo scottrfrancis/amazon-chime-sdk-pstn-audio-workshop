@@ -4,8 +4,10 @@ import { doesNotReject } from "assert"
 import * as Chime from "@aws-sdk/client-chime"
 import { resolve } from "dns"
 import { send } from "process"
+import { ResponseHeadersPolicy } from "aws-cdk-lib/aws-cloudfront"
 let constructor_call_cnt = 0
 let send_force_error = false
+let send_force_okay = false
 const forced_error_message = "forced error"
 
 const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
@@ -17,14 +19,17 @@ function my_send<InputType extends object,
         options?: object //AWS.HandlerOptions
         ): Promise<any> {
 
-    if (!send_force_error && (original_send !== null)) {
-        return original_send(command, options)
-    } else {
-        let p = new Promise((resolve, reject) => {
+    if (send_force_error) {
+        return new Promise((resolve, reject) => {
             reject(forced_error_message)
         })
-
-        return p
+    } else if (send_force_okay) {
+        return new Promise((resolve) => {
+            resolve(0)
+        })
+    } else {
+        expect(original_send !== undefined)
+        return original_send(command, options)
     }
 }
 
@@ -39,13 +44,23 @@ jest.mock('@aws-sdk/client-chime', () => {
                 constructor_call_cnt += 1
 
                 let a_client = new original.ChimeClient(arg)
-                if (send_force_error) {
+                if (send_force_error || send_force_okay) {
                     original_send = a_client.send
                     a_client.send = my_send
                 }
 
                 return a_client
-        })
+        }),
+        CreateSipMediaApplicationCallCommand: jest.fn()
+            .mockImplementation((arg) => {
+                console.log(arg)
+
+                let command = {
+                    "middlewareStack": {},
+                    "input": { ...arg }
+                }
+                return command
+            })
     }
 })
 
@@ -56,6 +71,7 @@ describe('call-me-back', () => {
         jest.resetModules()
         constructor_call_cnt = 0
         send_force_error = false
+        send_force_okay = false
         consoleSpy.mockClear()
     })
 
@@ -79,12 +95,19 @@ describe('call-me-back', () => {
 
         await lam.handler(event, null, async (_: any, r: any) => {
             try {
-                expect(constructor_call_cnt > 0)
                 expect(r).toEqual(resp)
+
+                // it creates a Chime Client
+                expect(constructor_call_cnt > 0)
+
+                // if HANGUP event, it calls CreateSipMediaApplicationCallCommand
+                // and the ChimeClient.send respose was good...
+
+                // unless we are forcing the error paths
                 if (send_force_error) {
                     // need to wait for console log to catch up
                     await new Promise(resolve => setTimeout(resolve, 500));
-                    expect(console.log).toHaveBeenCalledWith(forced_error_message)
+                    expect(consoleSpy).toHaveBeenCalledWith(forced_error_message)
                 }
                 done()
             } catch (e) {
@@ -116,6 +139,7 @@ test('first hangup', done => {
     event.InvocationEventType = "HANGUP"
 
     send_force_error = false
+    send_force_okay = true
     expect_response(event, generic_response, done)
 })
 
@@ -124,9 +148,7 @@ test('force hangup error', done => {
     event.InvocationEventType = "HANGUP"
 
     send_force_error = true
-
     expect_response(event, generic_response, done)
-    send_force_error = false    // probably superfluous, beforeEach should reset
 })
 
 test('second hangup', done => {

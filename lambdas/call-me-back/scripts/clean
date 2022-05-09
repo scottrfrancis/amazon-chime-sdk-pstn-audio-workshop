@@ -10,6 +10,7 @@ rm -Rf node_modules
 # remove testing cruft
 rm -f src/*.d.ts src/*.js
 rm -Rf src/coverage
+rm -Rf src/htmlcov
 rm -Rf src/node_modules
 mv src/test/lambda-runner.js src/test/lambda-runner.js.save
 rm src/test/*.d.ts src/test/*.js

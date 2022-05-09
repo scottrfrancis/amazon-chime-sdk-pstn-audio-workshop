@@ -162,7 +162,11 @@ And you can see in the next event from the SMA that those values are set:
 Assuming you have already deployed the parent directory and provisioned Amazon Chime SDK PSTN resources, you can deploy this lambda and test it like this:
 
 ```bash
+# cd to project root
+cd lambdas/call-play-recording/
+
 yarn deploy
+# approve the changes when prompted
 yarn swap
 ```
 
