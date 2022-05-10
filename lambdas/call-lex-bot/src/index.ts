@@ -21,9 +21,9 @@ import { RestApi } from "aws-cdk-lib/aws-apigateway";
 import 'source-map-support/register';
 
 
-const botAlias = ""
+const botAlias = process.env['BOT_ARN'] || "<paste arn here>"
 
-const chimeClient = new ChimeClient({ region: "REGION" });
+const chimeClient = new ChimeClient({ region:  process.env['AWS_REGION'] || 'REGION' });
 
 let generalResponse: smaResponse = {
   SchemaVersion: '1.0',

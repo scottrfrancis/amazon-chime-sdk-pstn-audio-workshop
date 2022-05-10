@@ -22,7 +22,7 @@ import { Interface } from "readline";
 import 'source-map-support/register';
 
 const wavFileBucket = process.env['WAVFILE_BUCKET'];
-const chimeClient = new ChimeClient({ region: "REGION" });
+const chimeClient = new ChimeClient({ region:  process.env['AWS_REGION'] || 'REGION' });
 
 let generalResponse: smaResponse = {
   SchemaVersion: '1.0',

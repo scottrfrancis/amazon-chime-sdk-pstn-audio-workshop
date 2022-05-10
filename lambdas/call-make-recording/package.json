@@ -15,6 +15,7 @@
     "number": "scripts/number",
     "lambda": "scripts/lambda",
     "swap": "scripts/swap && scripts/active",
+    "swap:py": "scripts/swap-py && scripts/active",
     "active": "scripts/active && scripts/active",
     "versions": "scripts/versions",
     "invoke": "scripts/invoke",
@@ -22,6 +23,7 @@
     "logs": "scripts/logs"
   },
   "devDependencies": {
+    "@aws-cdk/aws-lambda-python-alpha": "^2.23.0-alpha.0",
     "@types/jest": "^27.4.1",
     "@types/node": "10.17.27",
     "aws-cdk": "2.12.0",
