@@ -2,7 +2,7 @@ import { doesNotReject } from "assert"
 import { AnyPrincipal } from "aws-cdk-lib/aws-iam"
 import { env } from 'process'
 
-describe('call-make-recording', () => {
+describe('call-lex-bot', () => {
     beforeEach(() => {
         jest.resetModules()
     })
