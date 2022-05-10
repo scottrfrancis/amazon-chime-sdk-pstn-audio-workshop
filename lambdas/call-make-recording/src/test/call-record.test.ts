@@ -42,7 +42,17 @@ test('empty event', done => {
 })
 
 test('new inbound call', done => {
-    const new_call_result = {"SchemaVersion":"1.0","Actions":[{"Type":"Pause","Parameters":{"DurationInMilliseconds":"1000"}},{"Type":"Speak","Parameters":{"Engine":"neural","LanguageCode":"en-US","Text":"<speak>Hello!  Please record a message after the tone, and press pound when you are done.</speak>","TextType":"ssml","VoiceId":"Matthew"}}],"TransactionAttributes":{"state":"new"}}
+    const new_call_result = {
+        "SchemaVersion":"1.0",
+        "Actions":[
+            {"Type":"Pause","Parameters":{"DurationInMilliseconds":"1000"}},
+            {"Type":"Speak","Parameters":
+                {"Engine":"neural",
+                "LanguageCode":"en-US",
+                "Text":"<speak>Hello!  Please record a message after the tone, and press pound when you are done.</speak>",
+                "TextType":"ssml",
+                "VoiceId":"Matthew"}} ],
+        "TransactionAttributes":{"state":"new"}}
     expect_response(test_event, new_call_result, done)
 })
 
@@ -53,7 +63,14 @@ test('success new', done => {
     event.InvocationEventType = "ACTION_SUCCESSFUL"
     event.CallDetails.TransactionAttributes = {"state": "new"}
 
-    const success_new_response = {"SchemaVersion":"1.0","Actions":[{"Type":"Pause","Parameters":{"DurationInMilliseconds":"1000"}},{"Type":"PlayAudio","Parameters":{"Repeat":"1","AudioSource":{"Type":"S3","Key":"500hz-beep.wav"}}}],"TransactionAttributes":{"state":"beeping"}}
+    const success_new_response = {
+        "SchemaVersion":"1.0",
+        "Actions":[
+            {"Type":"Pause","Parameters":{"DurationInMilliseconds":"1000"}},
+            {"Type":"PlayAudio","Parameters":{
+                "Repeat":"1",
+                "AudioSource":{"Type":"S3","Key":"500hz-beep.wav"}}}],
+        "TransactionAttributes":{"state":"beeping"}}
     expect_response(event, success_new_response, done)
 })
 
@@ -163,7 +180,18 @@ test('succcess recording', done => {
     }}
     event.CallDetails.TransactionAttributes = {"state": "recording"}
 
-    const recording_response = {"SchemaVersion":"1.0","Actions":[{"Type":"Pause","Parameters":{"DurationInMilliseconds":"1000"}},{"Type":"Speak","Parameters":{"Engine":"neural","LanguageCode":"en-US","Text":"<speak>Your message said</speak>","TextType":"ssml","VoiceId":"Matthew"}},{"Type":"PlayAudio","Parameters":{"Repeat":"1","AudioSource":{"Type":"S3"}}}],"TransactionAttributes":{"state":"playing"}}
+    const recording_response = {
+        "SchemaVersion":"1.0",
+        "Actions":[
+            {"Type":"Pause","Parameters":{"DurationInMilliseconds":"1000"}},
+            {"Type":"Speak","Parameters":{
+                "Engine":"neural",
+                "LanguageCode":"en-US",
+                "Text":"<speak>Your message said</speak>",
+                "TextType":"ssml",
+                "VoiceId":"Matthew"}},
+            {"Type":"PlayAudio","Parameters":{"Repeat":"1","AudioSource":{"Type":"S3"}}}],
+        "TransactionAttributes":{"state":"playing"}}
     
     expect_response(event, recording_response, done)
 })
@@ -229,7 +257,13 @@ test('ringing', done => {
 test('answered', done => {
     let event = {...test_event}
     event.InvocationEventType = "CALL_ANSWERED"
-    let answered_response = {"SchemaVersion":"1.0","Actions":[{"Type":"Pause","Parameters":{"DurationInMilliseconds":"1000"}},{"Type":"Speak","Parameters":{"Engine":"neural","LanguageCode":"en-US","Text":"<speak>Hello!  I am just calling you back!  Goodbye!</speak>","TextType":"ssml","VoiceId":"Matthew"}},{"Type":"Pause","Parameters":{"DurationInMilliseconds":"1000"}},{"Type":"Hangup","Parameters":{"SipResponseCode":"0","ParticipantTag":""}}]}
+    let answered_response = {
+        "SchemaVersion":"1.0",
+        "Actions":[
+            {"Type":"Pause","Parameters":{"DurationInMilliseconds":"1000"}},
+            {"Type":"Speak","Parameters":{"Engine":"neural","LanguageCode":"en-US","Text":"<speak>Hello!  I am just calling you back!  Goodbye!</speak>","TextType":"ssml","VoiceId":"Matthew"}},
+            {"Type":"Pause","Parameters":{"DurationInMilliseconds":"1000"}},
+            {"Type":"Hangup","Parameters":{"SipResponseCode":"0","ParticipantTag":""}}]}
     expect_response(event, generic_response, done)
 })
 
