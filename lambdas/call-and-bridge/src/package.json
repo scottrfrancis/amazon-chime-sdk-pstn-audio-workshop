@@ -1,7 +1,8 @@
 {
   "scripts": {
     "test": "jest --coverage",
-    "test:watch": "jest --watch --coverage"
+    "test:watch": "jest --watch --coverage",
+    "test:py": "python3 -m unittest -v test/call_and_bridge_test.py"
   },
   "devDependencies": {
     "@types/jest": "^27.4.1",

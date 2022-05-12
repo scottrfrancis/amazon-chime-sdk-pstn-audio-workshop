@@ -65,7 +65,7 @@ def speak_and_get_digits_action(call_id, regex, speak_text):
                 'VoiceId': "Joanna"
             },
             'FailureSpeechParameters': {
-                'Text': "<speak>Ooops, there was an error.</speak>",
+                'Text': "<speak>Sorry, there was an error.</speak>",
                 'Engine': "neural",
                 'LanguageCode': "en-US",
                 'TextType': "ssml",
@@ -196,8 +196,8 @@ def action_succesful_handler(e):
     except KeyError:
         pass
     except Exception as err:
-        logger.warn(f"exception in action handler {err}")
-
+        logger.error('Exception with Action Handler. Error: ', exc_info=err)
+    
     return response(*actions)
 
 
@@ -206,7 +206,7 @@ def digits_recevied_handler(e):
 
     try:
         if (e['ActionData']['Type'] != 'ReceivedDigits'):
-            raise Exception()
+            raise Exception('Action Type is not ReceivedDigits')
 
         caller = list(filter(
             lambda p: p['Direction'] == "Inbound", e['CallDetails']['Participants']))[0]
@@ -217,7 +217,7 @@ def digits_recevied_handler(e):
         enable = e['ActionData']['ReceivedDigits'] == "1"
 
         if not(disable ^ enable):
-            raise Exception()
+            raise Exception('digit not [0|1]')
 
         actions = [
             voicefocus_action(caller, (enable and not disable)),
@@ -226,7 +226,7 @@ def digits_recevied_handler(e):
         ]
 
     except Exception as err:
-        logger.warn(f"Exception in digits received {err}")
+        logger.error(f"Exception in digits received.", exc_info=err)
 
     return response(*actions)
 
@@ -244,8 +244,10 @@ def handler(event, context):
     resp = response()
     try:
         resp = event_handlers[event['InvocationEventType']](event)
+    except KeyError:
+        pass
     except Exception as e:
-        logger.info(f"exception in handler: {e}")
+        logger.error(f"exception in Event Handler:", exc_info=e)
 
     logger.info(f"returning {json.dumps(resp, indent=2)}")
     return resp

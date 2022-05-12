@@ -66,7 +66,7 @@ class Test_Call_And_Bridge(unittest.TestCase):
             validate(instance=d, schema=s)
             self.assertTrue(True)
         except Exception as e:
-            self.assertTrue(False, e.message)
+            self.assertTrue(False, e)
 
     def check_schema_10(self, d):
         self.check_validate(d, self.basic_schema)
@@ -191,6 +191,15 @@ class Test_Call_And_Bridge(unittest.TestCase):
 
         import index
         self.assertIsNone(index.wav_file_bucket)
+
+    def test_log_level_set_from_env_var(self):
+        import index
+        self.assertEqual(index.log_level, 'INFO')
+
+        self.tearDown()
+        os.environ['LogLevel'] = 'DEBUG'
+        import index
+        self.assertEqual(index.log_level, 'DEBUG')
 
     def test_new_inbound_call(self):
         event = deepcopy(self.test_event)
