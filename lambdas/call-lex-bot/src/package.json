@@ -2,6 +2,7 @@
   "scripts": {
     "test": "jest --coverage",
     "test:watch": "jest --watch --coverage",
+    "test:py": "python3 -m unittest -v test/lambda_function_test.py",
     "test:prep-debug": "rm -f *.d.ts *.js"
   },
   "devDependencies": {
