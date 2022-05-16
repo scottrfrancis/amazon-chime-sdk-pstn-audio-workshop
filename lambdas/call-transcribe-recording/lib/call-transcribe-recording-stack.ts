@@ -18,6 +18,7 @@
 
 import { Construct } from 'constructs';
 import { Duration, Stack, StackProps, CfnOutput, RemovalPolicy } from 'aws-cdk-lib';
+import { PythonFunction } from '@aws-cdk/aws-lambda-python-alpha';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { NodejsFunction } from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as iam from 'aws-cdk-lib/aws-iam';
@@ -27,8 +28,10 @@ const path = require('path');
 
 export class CallTranscribeRecordingStack extends Stack {
   public readonly wavFileBucketName: string;
+  public readonly pyLambdaEndpointArn: string;
   public readonly smaLambdaEndpointArn: string;
   public readonly handlerLambdaLogGroupName: string;
+  public readonly pyLambdaName: string;
   public readonly smaLambdaName: string;
 
   constructor(scope: Construct, id: string, props?: StackProps) {
@@ -140,5 +143,21 @@ export class CallTranscribeRecordingStack extends Stack {
     new CfnOutput(this, 'smaHandlerArn', { value: this.smaLambdaEndpointArn });
     new CfnOutput(this, 'logGroup', { value: this.handlerLambdaLogGroupName });
     new CfnOutput(this, 'smaHandlerName', { value: this.smaLambdaName });
+
+    const pyLambda = new PythonFunction(this, 'pyLambda', {
+      entry: 'src/',
+      handler: 'handler',
+      environment: { 
+        WAVFILE_BUCKET: wavFiles.bucketName,
+      },
+      runtime: Runtime.PYTHON_3_9,
+      role: applicationRole,
+      timeout: Duration.seconds(60)
+    });
+  
+    this.pyLambdaEndpointArn = pyLambda.functionArn;
+    this.pyLambdaName = pyLambda.functionName;
+    new CfnOutput(this, 'pyHandlerArn', { value: this.pyLambdaEndpointArn });
+    new CfnOutput(this, 'pyLambdaName', { value: this.pyLambdaName });    
   }
 }

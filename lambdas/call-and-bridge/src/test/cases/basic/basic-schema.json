@@ -1,0 +1,12 @@
+{
+    "required": [
+          "SchemaVersion",
+          "Actions"
+      ],
+  "properties": {
+          "SchemaVersion": {
+              "type": "string",
+              "const": "1.0"
+          }
+      }
+  }

@@ -16,9 +16,7 @@
  * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-//import { ChimeClient, CreateSipMediaApplicationCallCommand } from "@aws-sdk/client-chime";
-//import { SecretValue } from "aws-cdk-lib";
-//import { Interface } from "readline";
+
 import 'source-map-support/register';
 import { TranscribeClient, StartTranscriptionJobCommand, GetTranscriptionJobCommand, CallAnalyticsJobStatus } from "@aws-sdk/client-transcribe";
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
@@ -26,6 +24,7 @@ import { Stream } from 'stream'
 
 const transcribeClient = new TranscribeClient({});
 const wavFileBucket = process.env['WAVFILE_BUCKET'];
+
 
 let generalResponse: smaResponse = {
   SchemaVersion: '1.0',
@@ -163,10 +162,6 @@ async function playbackRecording(event: any) {
   }
   return [speakAction];
 }
-
-
-
-
 
 async function getTransaction(event: any) {
 

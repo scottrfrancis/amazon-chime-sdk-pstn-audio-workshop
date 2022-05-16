@@ -33,17 +33,6 @@ pause_action = {
     }
 }
 
-# play_audio_action = {
-#     'Type': "PlayAudio",
-#     'Parameters': {
-#         'Repeat': "1",
-#         'AudioSource': {
-#             'Type': "S3",
-#             'BucketName': wav_file_bucket,
-#             'Key': "",
-#         }
-#     }
-# }
 
 speak_action = {
   'Type': "Speak",
