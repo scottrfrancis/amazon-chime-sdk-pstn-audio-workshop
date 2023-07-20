@@ -9,6 +9,11 @@
   dependencies:
     "@jridgewell/trace-mapping" "^0.3.0"
 
+"@aws-cdk/aws-lambda-python-alpha@^2.23.0-alpha.0":
+  version "2.23.0-alpha.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-lambda-python-alpha/-/aws-lambda-python-alpha-2.23.0-alpha.0.tgz#44a0b05443e54d8fef2a2fc99128cbc5521dd9e4"
+  integrity sha512-Y0SQbg87DH6wBhSTr9APUOHtmuDU+PGiCFTzxyPrlPayohqHVAkY1JnJI2uFLKd3R9nROpcghWPm9wfUbW+H+w==
+
 "@aws-cdk/cfnspec@2.12.0":
   version "2.12.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/cfnspec/-/cfnspec-2.12.0.tgz#d17bf61bea5b34f600c7efb442ac134415319ed8"
@@ -4673,9 +4678,9 @@ which@^2.0.1:
     isexe "^2.0.0"
 
 word-wrap@~1.2.3:
-  version "1.2.3"
-  resolved "https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.3.tgz#610636f6b1f703891bd34771ccb17fb93b47079c"
-  integrity sha512-Hz/mrNwitNRh/HUAtM/VT/5VH+ygD6DV7mYKZAtHOrbs8U7lvPS6xf7EJKMF0uW1KJCl0H701g3ZGus+muE5vQ==
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/word-wrap/-/word-wrap-1.2.4.tgz#cb4b50ec9aca570abd1f52f33cd45b6c61739a9f"
+  integrity sha512-2V81OA4ugVo5pRo46hAoD2ivUJx8jXmWXfUkY4KFNw0hEptvN0QfH3K4nHiwzGeKl5rFKedV48QVoqYavy4YpA==
 
 wordwrap@>=0.0.2:
   version "1.0.0"
